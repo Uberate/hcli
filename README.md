@@ -7,10 +7,27 @@
 
 Hugo Ai Helper cli will read the `.hcli_config.yaml` config.
 
+```bash
 hcli gen post -n {Tempalte name} xxx
+```
 
-# Install
 
+### Show all templates
+
+```bash
+hcli gen
+```
+
+# Install & Make
+
+```bash
+# make release from source
 make releases
 
-& TODO
+# Make target OS and Arch
+# make hcli_{OS}_{ARCH}
+make hcli_darwin_arm64
+
+
+```
+

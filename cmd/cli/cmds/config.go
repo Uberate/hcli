@@ -2,7 +2,7 @@ package cmds
 
 import "github.com/spf13/cobra"
 
-func configCmd() *cobra.Command {
+func ConfigCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use: "config",
 	}

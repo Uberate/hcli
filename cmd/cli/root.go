@@ -1,10 +1,11 @@
-package cmds
+package main
 
 import (
 	"context"
 	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.io/uberate/hcli/cmd/cli/cmds"
 	"github.io/uberate/hcli/pkg/config"
 	"github.io/uberate/hcli/pkg/outputer"
 	"os"
@@ -18,7 +19,11 @@ var silence bool
 var configPath string
 
 func RootCmd() *cobra.Command {
-	cmd := &cobra.Command{}
+	cmd := &cobra.Command{
+		Run: func(cmd *cobra.Command, args []string) {
+			return
+		},
+	}
 
 	cmd.PersistentFlags().BoolVarP(&showVersion, "version", "v", false, "show version, exit directly")
 	cmd.PersistentFlags().BoolVarP(&showDetail, "detail", "d", false, "show detail, conflict with silence mode")
@@ -28,8 +33,8 @@ func RootCmd() *cobra.Command {
 		"'{parents_dir}/.hcli_config.yaml")
 
 	cmd.AddCommand(
-		genCmd(),
-		configCmd(),
+		cmds.GenCmd(),
+		cmds.ConfigCmd(),
 	)
 
 	cmd.PersistentPreRunE = preRun
@@ -59,6 +64,7 @@ func preRun(cmd *cobra.Command, args []string) error {
 	}
 
 	if showVersion {
+		ShowVersion()
 		return nil
 	}
 

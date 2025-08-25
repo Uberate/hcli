@@ -7,7 +7,7 @@ import (
 	"github.io/uberate/hcli/pkg/outputer"
 )
 
-func genCmd() *cobra.Command {
+func GenCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "gen",
 		Aliases: []string{"g"},

@@ -14,8 +14,8 @@ help:  ## Display this help
 	@echo Platform and arch support: $(PLATFORM_LIST)
 
 GIT_VERSION := $(shell git describe --tags || echo "unknown")
-#GO_FDFLAGS := -ldflags "-w -s -X 'main.Version=${VERSION}' -X 'main.HashTag=`git rev-parse HEAD`' -X 'main.BranchName=`git rev-parse --abbrev-ref HEAD`' -X 'main.BuildDate=`date -u '+%Y-%m-%d_%I:%M:%S%p'`' -X 'main.GoVersion=`go version`'"
-GO_FDFLAGS :=
+GO_FDFLAGS := -ldflags "-w -s -X 'main.Version=${VERSION}' -X 'main.HashTag=`git rev-parse HEAD`' -X 'main.BranchName=`git rev-parse --abbrev-ref HEAD`' -X 'main.BuildDate=`date -u '+%Y-%m-%d_%I:%M:%S%p'`' -X 'main.GoVersion=`go version`'"
+#GO_FDFLAGS :=
 GO_BUILD_CMD := CGO_ENABLED=0 go build $(GO_FDFLAGS) $(BIN_HCLI)
 
 GOOS = $(shell echo $@ | awk -F_ '{print $$2}')
@@ -28,6 +28,9 @@ OUTPUT_PATH := output
 
 hcli_%: ## build the specify os and arch bin.
 	GOOS=$(GOOS) GOARCH=$(ARCH) $(GO_BUILD_CMD) -o $(OUTPUT_PATH)/$@_$(GIT_VERSION)/$(BIN_FILE_NAME_HCLI) $(BIN_HCLI)
+
+hcli:
+	$(GO_BUILD_CMD) -o $(OUTPUT_PATH)/$@_$(GIT_VERSION)/$(BIN_FILE_NAME_HCLI) $(BIN_HCLI)
 
 PLATFORM_LIST := \
     darwin_arm64 \
