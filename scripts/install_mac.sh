@@ -1,0 +1,1 @@
+cp hcli ~/.local/bin/

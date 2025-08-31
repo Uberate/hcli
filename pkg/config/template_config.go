@@ -18,4 +18,7 @@ TODO"`
 
 	Dir     string `yaml:"Dir" comment:"Generate post path"`
 	NeedDir bool   `yaml:"NeedDir" comment:"if need dir, hcli will create post in a new dir named args and set file to index.md" default:"false"`
+
+	PicSummaryPrompt string `yaml:"PicSummaryPrompt" comment:"Pic summary prompt from target file."`
+	PicCreatePrompt  string `yaml:"PicCreatePrompt" comment:"Pic create prompt from target file."`
 }

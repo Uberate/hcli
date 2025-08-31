@@ -2,7 +2,6 @@ package cmds
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.io/uberate/hcli/pkg/config"
@@ -27,8 +26,12 @@ func genPost() *cobra.Command {
 		Use:     "posts",
 		Aliases: []string{"p", "post"},
 		Short:   "generate post by specify template define",
-		Args:    cobra.ExactArgs(1),
+		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if len(args) == 0 {
+				list(cmd.Context())
+				return nil
+			}
 			fileName := args[0]
 			if strings.HasSuffix(fileName, ".md") {
 				fileName = strings.TrimSuffix(fileName, ".md")
@@ -98,11 +101,7 @@ func getRenderConfig(ctx context.Context, tp config.TemplateConfig) (template.Re
 }
 
 func writeToFile(ctx context.Context, dir, fileName string, needDir bool, body string) error {
-	fileDir := dir
-	filePath := path.Join(fileDir, fileName+".md")
-	if needDir {
-		filePath = path.Join(fileDir, fileName, "index.md")
-	}
+	filePath := parseFileName(ctx, dir, fileName, needDir)
 
 	if err := os.MkdirAll(path.Dir(filePath), os.ModePerm); err != nil {
 		return err
@@ -114,21 +113,22 @@ func writeToFile(ctx context.Context, dir, fileName string, needDir bool, body s
 	return err
 }
 
-func searchTemplate(ctx context.Context, name string) (config.TemplateConfig, error) {
-	c := config.GetConfig(ctx)
-	for _, item := range c.Templates {
-		if item.Name == name {
-			return item, nil
-		}
-	}
-
-	return config.TemplateConfig{}, errors.New("template not found")
-}
-
 func getFileNameWithoutExtension(filePath string) string {
 	filename := filepath.Base(filePath)
 	fileSuffix := filepath.Ext(filename)
 	fileNameWithoutSuffix := strings.TrimSuffix(filename, fileSuffix)
 
 	return fileNameWithoutSuffix
+}
+
+func list(ctx context.Context) {
+	c := config.GetConfig(ctx)
+	for _, item := range c.Templates {
+		outputer.PrintFL(ctx, "---")
+		outputer.PrintFL(ctx, "Name: %s", item.Name)
+		outputer.PrintFL(ctx, "Categories: %v", item.Categories)
+		outputer.PrintFL(ctx, "Tags: %v", item.Tags)
+		outputer.PrintFL(ctx, "Dir: %s", item.Dir)
+		outputer.PrintFL(ctx, "NeedDir: %v", item.NeedDir)
+	}
 }
