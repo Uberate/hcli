@@ -55,7 +55,7 @@ func GeneratePictureFromTemplate(ctx context.Context, fileName, templateName str
 	if err != nil {
 		return fmt.Errorf("failed to determine file path: %w", err)
 	}
-	
+
 	fileContent, err := readFileContent(actualFilePath)
 	if err != nil {
 		return fmt.Errorf("failed to read file %s: %w", actualFilePath, err)
@@ -64,6 +64,11 @@ func GeneratePictureFromTemplate(ctx context.Context, fileName, templateName str
 	desc, err := aiClient.CreatePICSummary(ctx, fileContent)
 	if err != nil {
 		return err
+	}
+
+	// Save the prompt to file
+	if err := savePromptToFile(ctx, fileName, tp, desc); err != nil {
+		return fmt.Errorf("failed to save prompt: %w", err)
 	}
 
 	// Generate image using file content as prompt
@@ -76,7 +81,24 @@ func GeneratePictureFromTemplate(ctx context.Context, fileName, templateName str
 	return saveGeneratedImage(ctx, fileName, tp, imageData)
 }
 
+func savePromptToFile(ctx context.Context, fileName string, tp config.TemplateConfig, prompt string) error {
+	// Create prompt filename based on image filename
+	imageFileName := getOutputFileName(fileName, tp)
+	promptFileName := strings.TrimSuffix(imageFileName, filepath.Ext(imageFileName)) + ".prompt.txt"
 
+	// Ensure directory exists
+	if err := os.MkdirAll(filepath.Dir(promptFileName), os.ModePerm); err != nil {
+		return fmt.Errorf("failed to create directory: %w", err)
+	}
+
+	// Write prompt to file
+	if err := os.WriteFile(promptFileName, []byte(prompt), 0644); err != nil {
+		return fmt.Errorf("failed to write prompt file: %w", err)
+	}
+
+	fmt.Printf("Prompt saved to: %s\n", promptFileName)
+	return nil
+}
 
 func saveGeneratedImage(ctx context.Context, fileName string, tp config.TemplateConfig, imageData []byte) error {
 	// Create output filename based on template configuration
@@ -119,13 +141,13 @@ func getUniqueFilename(filePath string) string {
 	// File exists, add suffix
 	ext := filepath.Ext(filePath)
 	base := strings.TrimSuffix(filePath, ext)
-	
+
 	for i := 1; i < 100; i++ {
 		newPath := fmt.Sprintf("%s_%d%s", base, i, ext)
 		if _, err := os.Stat(newPath); os.IsNotExist(err) {
 			return newPath
 		}
 	}
-	
+
 	return filePath
 }
