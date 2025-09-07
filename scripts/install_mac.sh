@@ -11,7 +11,7 @@ NC='\033[0m' # No Color
 
 # Configuration
 REPO_OWNER="uberate"  # Change this to your GitHub username
-REPO_NAME="hugo-ai-helper"   # Change this to your repository name
+REPO_NAME="hcli"   # Change this to your repository name
 INSTALL_DIR="/usr/local/bin"
 TEMP_DIR="/tmp/hcli-install"
 
@@ -68,11 +68,11 @@ echo -e "${YELLOW}Extracting...${NC}"
 tar -xzf hcli.tar.gz
 
 # Make binary executable
-chmod +x hcli
+chmod +x output/hcli_${OS}_${ARCH}_$LATEST_VERSION/hcli
 
 # Install to /usr/local/bin
 echo -e "${YELLOW}Installing to $INSTALL_DIR...${NC}"
-if ! sudo mv hcli "$INSTALL_DIR/"; then
+if ! sudo mv output/hcli_${OS}_${ARCH}_$LATEST_VERSION/hcli "$INSTALL_DIR/"; then
     echo -e "${RED}Failed to install to $INSTALL_DIR${NC}"
     echo -e "${YELLOW}You may need to run:${NC}"
     echo -e "  sudo mkdir -p $INSTALL_DIR"
@@ -93,4 +93,5 @@ else
     echo -e "${YELLOW}Please ensure $INSTALL_DIR is in your PATH${NC}"
 fi
 
+echo -e ""
 echo -e "${GREEN}Done! You can now use 'hcli' command.${NC}"

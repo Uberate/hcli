@@ -14,7 +14,7 @@ help:  ## Display this help
 	@echo Platform and arch support: $(PLATFORM_LIST)
 
 GIT_VERSION := $(shell git describe --tags || echo "unknown")
-GO_FDFLAGS := -ldflags "-w -s -X 'main.Version=${VERSION}' -X 'main.HashTag=`git rev-parse HEAD`' -X 'main.BranchName=`git rev-parse --abbrev-ref HEAD`' -X 'main.BuildDate=`date -u '+%Y-%m-%d_%I:%M:%S%p'`' -X 'main.GoVersion=`go version`'"
+GO_FDFLAGS := -ldflags "-w -s -X 'main.Version=$(GIT_VERSION)' -X 'main.HashTag=`git rev-parse HEAD`' -X 'main.BranchName=`git rev-parse --abbrev-ref HEAD`' -X 'main.BuildDate=`date -u '+%Y-%m-%d_%I:%M:%S%p'`' -X 'main.GoVersion=`go version`'"
 #GO_FDFLAGS :=
 GO_BUILD_CMD := CGO_ENABLED=0 go build $(GO_FDFLAGS) $(BIN_HCLI)
 
