@@ -27,10 +27,6 @@ func genPic() *cobra.Command {
 			ctx := cmd.Context()
 			fileName := args[0]
 
-			if strings.HasSuffix(fileName, ".md") {
-				fileName = strings.TrimSuffix(fileName, ".md")
-			}
-
 			return GeneratePictureFromTemplate(ctx, fileName, picTemplateName)
 		},
 	}
@@ -54,10 +50,15 @@ func GeneratePictureFromTemplate(ctx context.Context, fileName, templateName str
 		return err
 	}
 
-	// Read file content
-	fileContent, err := readFileContent(fileName)
+	// Read file content - determine correct file path based on template config
+	actualFilePath, err := getActualFilePath(fileName, tp)
 	if err != nil {
-		return fmt.Errorf("failed to read file %s: %w", fileName, err)
+		return fmt.Errorf("failed to determine file path: %w", err)
+	}
+	
+	fileContent, err := readFileContent(actualFilePath)
+	if err != nil {
+		return fmt.Errorf("failed to read file %s: %w", actualFilePath, err)
 	}
 
 	desc, err := aiClient.CreatePICSummary(ctx, fileContent)
@@ -75,13 +76,7 @@ func GeneratePictureFromTemplate(ctx context.Context, fileName, templateName str
 	return saveGeneratedImage(ctx, fileName, tp, imageData)
 }
 
-func readFileContent(fileName string) (string, error) {
-	content, err := os.ReadFile(fileName)
-	if err != nil {
-		return "", err
-	}
-	return string(content), nil
-}
+
 
 func saveGeneratedImage(ctx context.Context, fileName string, tp config.TemplateConfig, imageData []byte) error {
 	// Create output filename based on template configuration
@@ -107,9 +102,30 @@ func getOutputFileName(originalName string, tp config.TemplateConfig) string {
 	baseName := filepath.Base(originalName)
 	nameWithoutExt := strings.TrimSuffix(baseName, filepath.Ext(baseName))
 
+	// Use the same logic as gen_post for directory structure
 	if tp.NeedDir && tp.Dir != "" {
-		return filepath.Join(tp.Dir, nameWithoutExt, "feature.png")
+		return getUniqueFilename(filepath.Join(tp.Dir, nameWithoutExt, "feature.png"))
 	}
 
-	return nameWithoutExt + ".png"
+	// For non-dir templates, save in the same directory as original file
+	return getUniqueFilename(filepath.Join(filepath.Dir(originalName), "feature.png"))
+}
+
+func getUniqueFilename(filePath string) string {
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		return filePath
+	}
+
+	// File exists, add suffix
+	ext := filepath.Ext(filePath)
+	base := strings.TrimSuffix(filePath, ext)
+	
+	for i := 1; i < 100; i++ {
+		newPath := fmt.Sprintf("%s_%d%s", base, i, ext)
+		if _, err := os.Stat(newPath); os.IsNotExist(err) {
+			return newPath
+		}
+	}
+	
+	return filePath
 }

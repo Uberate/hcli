@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"github.io/uberate/hcli/pkg/config"
+	"os"
 	"path"
+	"path/filepath"
 )
 
 func searchTemplate(ctx context.Context, name string) (config.TemplateConfig, error) {
@@ -35,4 +37,23 @@ func parseFileDir(ctx context.Context, dir, fileName string, needDir bool) strin
 	}
 
 	return fileDir
+}
+
+func getActualFilePath(fileName string, tp config.TemplateConfig) (string, error) {
+	// Use the same logic as gen_post to determine the actual file path
+	if tp.NeedDir {
+		// For NeedDir=true, the file should be in subdirectory/index.md
+		return filepath.Join(tp.Dir, fileName, "index.md"), nil
+	} else {
+		// For NeedDir=false, the file should be fileName.md in the template directory
+		return filepath.Join(tp.Dir, fileName+".md"), nil
+	}
+}
+
+func readFileContent(fileName string) (string, error) {
+	content, err := os.ReadFile(fileName)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
 }
