@@ -2,6 +2,7 @@ package ais
 
 import (
 	"context"
+	"encoding/base64"
 	"fmt"
 	"github.com/volcengine/volcengine-go-sdk/service/arkruntime"
 	"github.com/volcengine/volcengine-go-sdk/service/arkruntime/model"
@@ -13,6 +14,7 @@ type VolcConfig struct {
 	ApiKey string
 
 	ThinkModel string
+	PicModel   string
 
 	CustomPrompt map[string]string
 }
@@ -21,7 +23,8 @@ func NewVolcEngineAI(config VolcConfig) VolcEngineAI {
 	client := arkruntime.NewClientWithApiKey(config.ApiKey)
 	res := VolcEngineAI{
 		client,
-		"",
+		config.ThinkModel,
+		config.PicModel,
 		defaultSysPromptZhCn}
 	// 更新用户自定义的提示词。
 	for k, v := range config.CustomPrompt {
@@ -31,9 +34,13 @@ func NewVolcEngineAI(config VolcConfig) VolcEngineAI {
 	}
 
 	res.thinkModelId = config.ThinkModel
+	res.picModelId = config.PicModel
 
 	if res.thinkModelId == "" {
 		res.thinkModelId = os.Getenv("THINK_MODEL_ID")
+	}
+	if res.picModelId == "" {
+		res.picModelId = os.Getenv("PIC_MODEL_ID")
 	}
 
 	return res
@@ -43,6 +50,7 @@ type VolcEngineAI struct {
 	c *arkruntime.Client
 
 	thinkModelId string
+	picModelId   string
 
 	sysRolePrompt map[string]string
 }
@@ -67,6 +75,39 @@ func (ve VolcEngineAI) Thinking(ctx context.Context, input string) (resp string,
 	}
 
 	return *res.Choices[0].Message.Content.StringValue, nil
+}
+
+func (ve VolcEngineAI) GenPic(ctx context.Context, input string) (resp []byte, err error) {
+	if ve.picModelId == "" {
+		return nil, fmt.Errorf("pic model not configured")
+	}
+
+	form := model.GenerateImagesResponseFormatBase64
+	result, err := ve.c.GenerateImages(ctx, model.GenerateImagesRequest{
+		Model:          ve.thinkModelId,
+		Prompt:         input,
+		ResponseFormat: &form,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if len(result.Data) == 0 {
+		return nil, fmt.Errorf("can't found any ans from volc")
+	}
+
+	if result.Data[0].B64Json == nil {
+		return nil, fmt.Errorf("can't found any ans from volc")
+	}
+	
+	// Decode base64 image data
+	imageData, err := base64.StdEncoding.DecodeString(*result.Data[0].B64Json)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode base64 image data: %w", err)
+	}
+	
+	return imageData, nil
 }
 
 const (

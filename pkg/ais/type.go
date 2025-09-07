@@ -4,6 +4,7 @@ import "context"
 
 type AIs interface {
 	Thinking(ctx context.Context, input string) (resp string, err error)
+	GenPic(ctx context.Context, input string) (resp []byte, err error)
 }
 
 var picSummaryPromptKey = "pic_summary_prompt_key"

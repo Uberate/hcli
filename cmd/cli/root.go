@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.io/uberate/hcli/cmd/cli/cmds"
+	"github.io/uberate/hcli/pkg/ais"
+	"github.io/uberate/hcli/pkg/cctx"
 	"github.io/uberate/hcli/pkg/config"
 	"github.io/uberate/hcli/pkg/outputer"
 	"os"
@@ -75,6 +77,10 @@ func preRun(cmd *cobra.Command, args []string) error {
 
 	ctx = config.SetConfig(ctx, c)
 
+	// Create and set AI client if needed
+	aiClient := createAIClient(c)
+	ctx = cctx.SetAIClient(ctx, aiClient)
+
 	cmd.SetContext(ctx)
 
 	return nil
@@ -120,4 +126,54 @@ func loadConfig(ctx context.Context) (config.CliConfig, error) {
 	}
 
 	return res, fmt.Errorf("nout found config, please set config to .hcli_config.yaml by hcli config demo")
+}
+
+func createAIClient(cfg config.CliConfig) ais.AIs {
+	aiConfig := cfg.AI
+	
+	switch aiConfig.Provider {
+	case "volc":
+		return createVolcEngineAI(aiConfig)
+	// Add more AI providers here in the future
+	// case "openai":
+	//     return createOpenAI(aiConfig)
+	// case "anthropic":
+	//     return createAnthropic(aiConfig)
+	default:
+		// Default to VolcEngine if provider is not specified or unknown
+		return createVolcEngineAI(aiConfig)
+	}
+}
+
+func createVolcEngineAI(aiConfig config.AIConfig) ais.AIs {
+	// Use config values first, fall back to environment variables
+	apiKey := aiConfig.APIKey
+	if apiKey == "" {
+		apiKey = os.Getenv("VOLC_API_KEY")
+	}
+	
+	thinkModel := aiConfig.ThinkModel
+	if thinkModel == "" {
+		thinkModel = os.Getenv("THINK_MODEL_ID")
+	}
+	
+	picModel := aiConfig.PicModel
+	if picModel == "" {
+		picModel = os.Getenv("PIC_MODEL_ID")
+	}
+	
+	// Use custom prompts from config or default empty map
+	customPrompt := aiConfig.CustomPrompt
+	if customPrompt == nil {
+		customPrompt = make(map[string]string)
+	}
+	
+	volcConfig := ais.VolcConfig{
+		ApiKey:       apiKey,
+		ThinkModel:   thinkModel,
+		PicModel:     picModel,
+		CustomPrompt: customPrompt,
+	}
+	
+	return ais.NewVolcEngineAI(volcConfig)
 }

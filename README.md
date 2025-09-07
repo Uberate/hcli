@@ -11,6 +11,29 @@ Hugo Ai Helper cli will read the `.hcli_config.yaml` config.
 hcli gen post -n {Tempalte name} xxx
 ```
 
+### Generate images
+
+Generate AI-powered images using VolcEngine's image generation API:
+
+```bash
+hcli gen pic "a beautiful landscape with mountains and lake"
+```
+
+**Configuration requirements:**
+- Set `AI.APIKey` in `.hcli_config.yaml` or `VOLC_API_KEY` environment variable
+- Set `AI.PicModel` in config or `PIC_MODEL_ID` environment variable
+- Optional: Configure custom prompts in `AI.CustomPrompt`
+
+**Example config:**
+```yaml
+AI:
+  Provider: "volc"
+  APIKey: "your_volc_api_key"
+  ThinkModel: "volc-think-model-id"
+  PicModel: "volc-pic-model-id"
+  CustomPrompt:
+    pic_summary_prompt_key: "Custom image description prompt"
+```
 
 ### Show all templates
 
