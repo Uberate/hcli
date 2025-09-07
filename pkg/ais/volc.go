@@ -55,7 +55,7 @@ type VolcEngineAI struct {
 	sysRolePrompt map[string]string
 }
 
-func (ve VolcEngineAI) Thinking(ctx context.Context, input string) (resp string, err error) {
+func (ve VolcEngineAI) CreatePICSummary(ctx context.Context, input string) (resp string, err error) {
 
 	res, err := ve.c.CreateChatCompletion(ctx, model.CreateChatCompletionRequest{
 		Model: ve.thinkModelId,
@@ -100,13 +100,13 @@ func (ve VolcEngineAI) GenPic(ctx context.Context, input string) (resp []byte, e
 	if result.Data[0].B64Json == nil {
 		return nil, fmt.Errorf("can't found any ans from volc")
 	}
-	
+
 	// Decode base64 image data
 	imageData, err := base64.StdEncoding.DecodeString(*result.Data[0].B64Json)
 	if err != nil {
 		return nil, fmt.Errorf("failed to decode base64 image data: %w", err)
 	}
-	
+
 	return imageData, nil
 }
 

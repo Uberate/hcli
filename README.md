@@ -13,10 +13,14 @@ hcli gen post -n {Tempalte name} xxx
 
 ### Generate images
 
-Generate AI-powered images using VolcEngine's image generation API:
+Generate AI-powered images from template content using VolcEngine's image generation API:
 
 ```bash
-hcli gen pic "a beautiful landscape with mountains and lake"
+# Generate image from a markdown file using a specific template
+hcli gen pic -n {template_name} filename.md
+
+# Example: Generate image for a blog post
+hcli gen pic -n blog_post my-post.md
 ```
 
 **Configuration requirements:**

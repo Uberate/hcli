@@ -3,7 +3,7 @@ package ais
 import "context"
 
 type AIs interface {
-	Thinking(ctx context.Context, input string) (resp string, err error)
+	CreatePICSummary(ctx context.Context, input string) (resp string, err error)
 	GenPic(ctx context.Context, input string) (resp []byte, err error)
 }
 
@@ -14,7 +14,7 @@ var picSummaryPromptZhCn = "你是一个文本内容的描述大师，根据用�
 	"3. 响应信息的长度应该不超过 300 字。" +
 	"另外，请着重描述以下内容：图片的风格，核心元素。" +
 	"如果用户未指定风格、内容，你需要自行裁断选择的风格。\n" +
-	"输入的信息中如果存在注释，请忽略，包括：" +
+	"输入的信息中如果存在注释，请忽略：" +
 	"1. markdown 文本类型中的 '+++' 区块。"
 
 var defaultSysPromptZhCn = map[string]string{

@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Needed for git describe to work properly
 
     - name: Set up Go
       uses: actions/setup-go@v4
@@ -19,7 +21,9 @@ jobs:
         go-version: '1.21'
 
     - name: Build releases
-      run: make releases
+      run: |
+        cd ${{ github.workspace }}
+        make releases
 
     - name: Upload release assets
       uses: softprops/action-gh-release@v1
