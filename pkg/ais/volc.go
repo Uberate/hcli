@@ -71,7 +71,7 @@ func (ve VolcEngineAI) CreatePICSummary(ctx context.Context, input string) (resp
 	}
 
 	if len(res.Choices) == 0 {
-		return "", fmt.Errorf("can't found any ans from volc")
+		return "", fmt.Errorf("no response choices received from VolcEngine AI - check API key and model configuration")
 	}
 
 	return *res.Choices[0].Message.Content.StringValue, nil
@@ -79,7 +79,7 @@ func (ve VolcEngineAI) CreatePICSummary(ctx context.Context, input string) (resp
 
 func (ve VolcEngineAI) GenPic(ctx context.Context, input string) (resp []byte, err error) {
 	if ve.picModelId == "" {
-		return nil, fmt.Errorf("pic model not configured")
+		return nil, fmt.Errorf("image generation model not configured - set PIC_MODEL_ID environment variable or configure in .hcli_config.yaml")
 	}
 
 	form := model.GenerateImagesResponseFormatBase64
@@ -94,11 +94,11 @@ func (ve VolcEngineAI) GenPic(ctx context.Context, input string) (resp []byte, e
 	}
 
 	if len(result.Data) == 0 {
-		return nil, fmt.Errorf("can't found any ans from volc")
+		return nil, fmt.Errorf("no image data received from VolcEngine AI - check if the model supports image generation")
 	}
 
 	if result.Data[0].B64Json == nil {
-		return nil, fmt.Errorf("can't found any ans from volc")
+		return nil, fmt.Errorf("image data format invalid - expected base64 encoded image but received nil")
 	}
 
 	// Decode base64 image data

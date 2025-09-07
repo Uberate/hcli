@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.io/uberate/hcli/pkg/cctx"
 	"github.io/uberate/hcli/pkg/config"
+	"github.io/uberate/hcli/pkg/outputer"
 	"os"
 	"path/filepath"
 	"strings"
@@ -53,12 +54,12 @@ func GeneratePictureFromTemplate(ctx context.Context, fileName, templateName str
 	// Read file content - determine correct file path based on template config
 	actualFilePath, err := getActualFilePath(fileName, tp)
 	if err != nil {
-		return fmt.Errorf("failed to determine file path: %w", err)
+		return fmt.Errorf("failed to determine file path for template %s: %w", tp.Name, err)
 	}
 
 	fileContent, err := readFileContent(actualFilePath)
 	if err != nil {
-		return fmt.Errorf("failed to read file %s: %w", actualFilePath, err)
+		return fmt.Errorf("failed to read file %s for template %s: %w", actualFilePath, tp.Name, err)
 	}
 
 	desc, err := aiClient.CreatePICSummary(ctx, fileContent)
@@ -96,7 +97,7 @@ func savePromptToFile(ctx context.Context, fileName string, tp config.TemplateCo
 		return fmt.Errorf("failed to write prompt file: %w", err)
 	}
 
-	fmt.Printf("Prompt saved to: %s\n", promptFileName)
+	outputer.SuccessFL(ctx, "Prompt saved to: %s", promptFileName)
 	return nil
 }
 
@@ -114,8 +115,8 @@ func saveGeneratedImage(ctx context.Context, fileName string, tp config.Template
 		return fmt.Errorf("failed to write image file: %w", err)
 	}
 
-	fmt.Printf("Generated picture saved to: %s\n", outputFileName)
-	fmt.Printf("Image size: %d bytes\n", len(imageData))
+	outputer.SuccessFL(ctx, "Generated picture saved to: %s", outputFileName)
+	outputer.InfoFL(ctx, "Image size: %d bytes", len(imageData))
 
 	return nil
 }
