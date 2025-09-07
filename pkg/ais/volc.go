@@ -84,7 +84,7 @@ func (ve VolcEngineAI) GenPic(ctx context.Context, input string) (resp []byte, e
 
 	form := model.GenerateImagesResponseFormatBase64
 	result, err := ve.c.GenerateImages(ctx, model.GenerateImagesRequest{
-		Model:          ve.thinkModelId,
+		Model:          ve.picModelId,
 		Prompt:         input,
 		ResponseFormat: &form,
 	})
