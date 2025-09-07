@@ -37,7 +37,55 @@ AI:
   PicModel: "volc-pic-model-id"
   CustomPrompt:
     pic_summary_prompt_key: "Custom image description prompt"
+```### Generate Posts
+
+Create new blog posts using AI-powered templates:
+
+```bash
+# Generate a new post with a specific template and title
+hcli gen post -n blog_template "My New Blog Post"
+
+# Generate a post with custom front matter fields
+hcli gen post -n article_template -f "tags=tech,ai;categories=development" "AI in Web Development"
+
+# Generate a post from a YAML config file
+hcli gen post -c post_config.yaml
 ```
+
+**Configuration for Posts:**
+- Ensure `AI.ThinkModel` is set in `.hcli_config.yaml` or `THINK_MODEL_ID` environment variable
+- Customize post templates in the `Templates.Post` section of the config
+- Define default front matter fields in `Defaults.Post`
+
+### Advanced Configuration
+
+The `.hcli_config.yaml` supports additional configuration options:
+
+```yaml
+# Example advanced configuration
+AI:
+  Provider: "volc"  # Supported providers: volc, openai (experimental)
+  APIKey: "your_api_key"
+  ThinkModel: "volc-think-model-id"
+  PicModel: "volc-pic-model-id"
+  Timeout: 30  # Request timeout in seconds
+Templates:
+  Post:
+    blog_template:
+      prompt: "Write a blog post about {title} with SEO-friendly content"
+      front_matter:
+        draft: false
+        author: "Your Name"
+Defaults:
+  Post:
+    tags: ["ai", "hugo"]
+    categories: ["development"]
+```
+
+**Environment Variables:**
+- `HCLI_CONFIG`: Path to custom config file (overrides default .hcli_config.yaml)
+- `DEBUG_MODE`: Set to "true" to enable verbose logging
+
 
 ### Show all templates
 
@@ -53,11 +101,16 @@ hcli gen
 # Install with curl (Linux/Mac)
 curl -sSL https://raw.githubusercontent.com/Uberate/hcli/refs/heads/main/scripts/install_mac.sh | bash
 
+```
+
+```
 # Or download and install manually
 curl -LO https://github.com/uberate/hugo-ai-helper/releases/latest/download/hcli_$(uname -s)_$(uname -m).tar.gz
 tar -xzf hcli_*.tar.gz
 sudo mv hcli /usr/local/bin/
+```
 
+```
 # Verify installation
 hcli --version
 ```
