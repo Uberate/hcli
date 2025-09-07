@@ -60,10 +60,13 @@ func GeneratePictureFromTemplate(ctx context.Context, fileName, templateName str
 		return fmt.Errorf("failed to read file %s: %w", fileName, err)
 	}
 
-	aiClient.CreatePICSummary(ctx)
+	desc, err := aiClient.CreatePICSummary(ctx, fileContent)
+	if err != nil {
+		return err
+	}
 
 	// Generate image using file content as prompt
-	imageData, err := aiClient.GenPic(ctx, fileContent)
+	imageData, err := aiClient.GenPic(ctx, desc)
 	if err != nil {
 		return fmt.Errorf("failed to generate image: %w", err)
 	}
