@@ -47,6 +47,23 @@ hcli gen
 
 # Install & Make
 
+## Quick Install (One-liner)
+
+```bash
+# Install with curl (Linux/Mac)
+curl -sSL https://raw.githubusercontent.com/yourusername/hugo-ai-helper/main/install.sh | bash
+
+# Or download and install manually
+curl -LO https://github.com/yourusername/hugo-ai-helper/releases/latest/download/hcli_$(uname -s)_$(uname -m).tar.gz
+tar -xzf hcli_*.tar.gz
+sudo mv hcli /usr/local/bin/
+
+# Verify installation
+hcli --version
+```
+
+## Build from Source
+
 ```bash
 # make release from source
 make releases
@@ -54,7 +71,5 @@ make releases
 # Make target OS and Arch
 # make hcli_{OS}_{ARCH}
 make hcli_darwin_arm64
-
-
 ```
 
