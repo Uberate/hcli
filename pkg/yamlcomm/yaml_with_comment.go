@@ -84,7 +84,7 @@ func structToYamlWithComments(v reflect.Value, node *yaml.Node) error {
 			// Add header comment (comment tag)
 			comment := parseCommentTag(tagStr)
 			if comment != "" {
-				keyNode.HeadComment = processComment(comment)
+				keyNode.HeadComment = "\n" + processComment(comment)
 			}
 
 			// Process line-end type and default value comments
