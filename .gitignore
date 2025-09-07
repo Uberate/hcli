@@ -4,7 +4,8 @@
 !.github/**
 
 !.gitignore
-!go.{mod,sum}
+!go.mod
+!go.sum
 
 !cmd/
 !cmd/**
