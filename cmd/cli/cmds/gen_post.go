@@ -48,13 +48,12 @@ func genPost() *cobra.Command {
 func GenerateNewPost(ctx context.Context, name string, title string) error {
 	// read config first
 	hctx.Debug(ctx, "config path: %s", hctx.GetConfigPath(ctx))
-	hctx.Println(ctx, "config path: %s", hctx.GetConfigPath(ctx))
 	c, err := config.ReadConfig(hctx.GetConfigPath(ctx))
 	if err != nil {
 		return errors.New("read config error: " + err.Error())
 	}
 
-	tp, err := c.SearchTemplate(name)
+	tp, err := c.SearchTemplate(templateName)
 	if err != nil {
 		return errors.New("search template error: " + err.Error())
 	}

@@ -22,7 +22,7 @@ func genPic() *cobra.Command {
 			ctx := cmd.Context()
 			fileName := args[0]
 
-			return GeneratePictureFromTemplate(ctx, fileName, templateName)
+			return GeneratePictureFromTemplate(ctx, fileName, picTemplateName)
 		},
 	}
 
@@ -37,7 +37,7 @@ func GeneratePictureFromTemplate(ctx context.Context, fileName, templateName str
 		return err
 	}
 
-	llmTools, err := llms.NewLLM(c.LLMs)
+	llmTools, err := llms.NewLLMWithAutoEnv(c.LLMs)
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func GeneratePictureFromTemplate(ctx context.Context, fileName, templateName str
 	if err = tp.WritePicSummary(fileName, generateResult.Summary); err != nil {
 		return err
 	}
-	if err = tp.WritePicSummary(fileName, generateResult.Summary); err != nil {
+	if err = tp.WritePoster(fileName, generateResult.Pic); err != nil {
 		return err
 	}
 

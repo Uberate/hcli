@@ -27,9 +27,9 @@ func RootCmd() *cobra.Command {
 	)
 	cmd.PersistentFlags().StringVarP(&logLevel, "log-level", "l", "info", "log level, support: debug, info, warn, error, fatal")
 	cmd.PersistentFlags().StringVarP(&configPath, "config", "c", ".hcli_config.yaml", "config file path,"+
-		" if empty, use './.hcli_config.yaml''")
+		" if empty, use '.hcli_config.yaml''")
 
-	cmd.PreRunE = preRun
+	cmd.PersistentPreRunE = preRun
 
 	return cmd
 }

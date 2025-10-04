@@ -42,7 +42,7 @@ func (t Template) GetFilePath(fileName string) string {
 
 func (t Template) WritePicSummary(fileName string, summary string) error {
 	dir := path.Dir(t.GetFilePath(fileName))
-	summaryFileName := path.Join(dir, "%s.summary.text", fileName)
+	summaryFileName := path.Join(dir, fmt.Sprintf("%s.summary.text", fileName))
 	if FileExists(summaryFileName) {
 		return fmt.Errorf("file %s already exists", summaryFileName)
 	}
@@ -52,7 +52,7 @@ func (t Template) WritePicSummary(fileName string, summary string) error {
 
 func (t Template) WritePoster(fileName string, picData []byte) error {
 	dir := path.Dir(t.GetFilePath(fileName))
-	summaryFileName := path.Join(dir, "feature.md")
+	summaryFileName := path.Join(dir, "feature.pic")
 	if FileExists(summaryFileName) {
 		return fmt.Errorf("file %s already exists", summaryFileName)
 	}
