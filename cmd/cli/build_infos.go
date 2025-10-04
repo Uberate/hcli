@@ -1,8 +1,8 @@
 package main
 
 import (
-	"context"
-	"github.io/uberate/hcli/pkg/outputer"
+	"github.com/spf13/cobra"
+	"github.io/uberate/hcli/pkg/hctx"
 )
 
 var Version = ""
@@ -11,13 +11,18 @@ var BranchName = ""
 var BuildDate = ""
 var GoVersion = ""
 
-func ShowVersion() {
-	ctx := context.Background()
-	ctx = outputer.SetLevel(ctx, outputer.OutputLevelNormal)
-	
-	outputer.ForceFL(ctx, `Version: %s
-HashTag: %s
-BranchName: %s
-BuildDate: %s
-GoVersion: %s`, Version, HashTag, BranchName, BuildDate, GoVersion)
+var versionFormat = "version: %s\n" +
+	"hashTag: %s\n" +
+	"branchName: %s\n" +
+	"buildDate: %s\n" +
+	"goVersion: %s\n"
+
+func VersionCmd() *cobra.Command {
+	return &cobra.Command{
+		Use:   "version",
+		Short: "Print the version number",
+		Run: func(cmd *cobra.Command, args []string) {
+			hctx.Println(cmd.Context(), versionFormat, Version, HashTag, BranchName, BuildDate, GoVersion)
+		},
+	}
 }
