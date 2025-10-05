@@ -27,8 +27,8 @@ func RenderTemplate(ctx context.Context, tmpl *Template, option RenderOption) (s
 	vars := map[string]string{
 		"title":      option.Title,
 		"createAt":   time.Now().Format(time.RFC3339),
-		"tags":       fmt.Sprintf("[%s]", strings.Join(append(tmpl.Tags, option.AppendTags...), ",")),
-		"categories": fmt.Sprintf("[%s]", strings.Join(append(tmpl.Categories, option.AppendCategories...), ",")),
+		"tags":       fmt.Sprintf("[%s]", formatStringArray(append(tmpl.Tags, option.AppendTags...)...)),
+		"categories": fmt.Sprintf("[%s]", formatStringArray(append(tmpl.Categories, option.AppendCategories...)...)),
 	}
 
 	for k, v := range option.CustomArgs {
@@ -48,6 +48,15 @@ func RenderTemplate(ctx context.Context, tmpl *Template, option RenderOption) (s
 	}
 
 	return buf.String(), nil
+}
+
+func formatStringArray(inputs ...string) string {
+	newVars := []string{}
+	for _, input := range inputs {
+		newVars = append(newVars, fmt.Sprintf("\"%s\"", input))
+	}
+
+	return strings.Join(newVars, ", ")
 }
 
 // RenderToFile renders a template and writes it to a file using the template's configuration
