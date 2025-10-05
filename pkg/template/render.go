@@ -5,8 +5,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"html/template"
 	"strings"
+	"text/template"
 	"time"
 )
 
