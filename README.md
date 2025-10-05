@@ -2,8 +2,14 @@
 
 HCLI is a command-line tool being developed with Golang for creating and optimizing Hugo posts. This project is currently in early development phase.
 
-## Build
+## Installation
 
+### Install with curl (Linux/Mac)
+```bash
+curl -sSL https://raw.githubusercontent.com/Uberate/hcli/refs/heads/main/scripts/install_mac.sh | bash
+```
+
+### Build from source
 ```bash
 # Build the project
 go build -o hcli ./cmd/cli
