@@ -2,19 +2,15 @@ package cmds
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"github.com/spf13/cobra"
 	"github.io/uberate/hcli/pkg/config"
-	"github.io/uberate/hcli/pkg/outputer"
+	"github.io/uberate/hcli/pkg/hctx"
 	"github.io/uberate/hcli/pkg/template"
-	"os"
-	"path"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
-var overridePath string
 var templateName string
 var tags []string
 var categories []string
@@ -28,10 +24,6 @@ func genPost() *cobra.Command {
 		Short:   "generate post by specify template define",
 		Args:    cobra.MaximumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if len(args) == 0 {
-				list(cmd.Context())
-				return nil
-			}
 			fileName := args[0]
 			if strings.HasSuffix(fileName, ".md") {
 				fileName = strings.TrimSuffix(fileName, ".md")
@@ -44,73 +36,47 @@ func genPost() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().StringVarP(&templateName, "template-name", "n", "", "the template names")
-	cmd.Flags().StringSliceVarP(&tags, "tags", "t", nil, "the tags")
-	cmd.Flags().StringSliceVarP(&categories, "categories", "", nil, "the tags")
-	cmd.Flags().StringVarP(&overridePath, "override-path", "", "", "the override path")
-	cmd.Flags().StringVarP(&title, "title", "", "", "change title, default will parse from name")
-	cmd.Flags().StringSliceVarP(&customArgs, "custom-args", "a", []string{}, "custom args")
+	cmd.Flags().StringVarP(&templateName, "template", "n", "", "template name")
+	cmd.Flags().StringSliceVarP(&tags, "tags", "t", nil, "tags")
+	cmd.Flags().StringSliceVarP(&categories, "categories", "k", nil, "categories")
+	cmd.Flags().StringVarP(&title, "title", "", "", "title")
+	cmd.Flags().StringSliceVarP(&customArgs, "custom-args", "a", nil, "custom args")
 
 	return cmd
 }
 
 func GenerateNewPost(ctx context.Context, name string, title string) error {
-	tp, err := searchTemplate(ctx, templateName)
+	// read config first
+	hctx.Debug(ctx, "config path: %s", hctx.GetConfigPath(ctx))
+	c, err := config.ReadConfig(hctx.GetConfigPath(ctx))
 	if err != nil {
-		return err
+		return errors.New("read config error: " + err.Error())
 	}
 
-	rc, err := getRenderConfig(ctx, tp)
+	tp, err := c.SearchTemplate(templateName)
 	if err != nil {
-		return err
+		return errors.New("search template error: " + err.Error())
 	}
 
-	res, err := template.Render(ctx, rc)
+	hctx.Debug(ctx, "%+v", tp)
 
-	if err != nil {
-		return err
-	}
+	args := map[string]string{}
 
-	writeToFile(ctx, tp.Dir, name, tp.NeedDir, res)
-
-	outputer.DetailFL(ctx, "render: %s", res)
-
-	return nil
-}
-
-func getRenderConfig(ctx context.Context, tp config.TemplateConfig) (template.RenderConfig, error) {
-
-	rc := template.RenderConfig{
-		Tags:       append(tags, tp.Tags...),
-		Categories: append(categories, tp.Categories...),
-		Time:       time.Now().Format(time.RFC3339),
-		CustomArgs: map[string]string{},
-		Title:      title,
-		Temp:       tp.Template,
-	}
-
-	for _, arg := range customArgs {
-		v := strings.Split(arg, "=")
-		if len(v) != 2 {
-			return rc, fmt.Errorf("invalid custom arg: %s, want key=value", arg)
+	for _, item := range customArgs {
+		values := strings.Split(item, "=")
+		if len(values) < 2 {
+			return errors.New("wrong custom args format, need k=v")
 		}
-		rc.CustomArgs[v[0]] = strings.Join(v[1:], "=")
+
+		args[values[0]] = strings.Join(values[1:], "=")
 	}
 
-	return rc, nil
-}
-
-func writeToFile(ctx context.Context, dir, fileName string, needDir bool, body string) error {
-	filePath := parseFileName(ctx, dir, fileName, needDir)
-
-	if err := os.MkdirAll(path.Dir(filePath), os.ModePerm); err != nil {
-		return err
-	}
-
-	err := os.WriteFile(filePath, []byte(body), os.ModePerm)
-
-	outputer.PrintFL(ctx, "output to: %s", filePath)
-	return err
+	return template.RenderToFile(ctx, &tp, name, template.RenderOption{
+		Title:            title,
+		AppendTags:       tags,
+		AppendCategories: categories,
+		CustomArgs:       args,
+	})
 }
 
 func getFileNameWithoutExtension(filePath string) string {
@@ -119,16 +85,4 @@ func getFileNameWithoutExtension(filePath string) string {
 	fileNameWithoutSuffix := strings.TrimSuffix(filename, fileSuffix)
 
 	return fileNameWithoutSuffix
-}
-
-func list(ctx context.Context) {
-	c := config.GetConfig(ctx)
-	for _, item := range c.Templates {
-		outputer.PrintFL(ctx, "---")
-		outputer.PrintFL(ctx, "Name: %s", item.Name)
-		outputer.PrintFL(ctx, "Categories: %v", item.Categories)
-		outputer.PrintFL(ctx, "Tags: %v", item.Tags)
-		outputer.PrintFL(ctx, "Dir: %s", item.Dir)
-		outputer.PrintFL(ctx, "NeedDir: %v", item.NeedDir)
-	}
 }

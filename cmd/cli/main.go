@@ -1,8 +1,6 @@
 package main
 
-import (
-	"os"
-)
+import "os"
 
 func main() {
 	if err := RootCmd().Execute(); err != nil {
