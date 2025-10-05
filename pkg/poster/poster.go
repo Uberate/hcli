@@ -3,6 +3,7 @@ package poster
 import (
 	"context"
 	"errors"
+	"github.io/uberate/hcli/pkg/hctx"
 	"github.io/uberate/hcli/pkg/llms"
 	"github.io/uberate/hcli/pkg/template"
 )
@@ -41,11 +42,14 @@ func GeneratePoster(ctx context.Context, args GeneratePosterArgs) (*GeneratePost
 	if err != nil {
 		return nil, err
 	}
+	hctx.Println(ctx, "generate the summary done")
 
 	picData, err := args.LLMTools.Pic(ctx, res)
 	if err != nil {
 		return nil, err
 	}
+
+	hctx.Println(ctx, "generate the pic done")
 
 	return &GeneratePosterResult{
 		Summary: res,
