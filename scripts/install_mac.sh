@@ -87,7 +87,7 @@ rm -rf $TEMP_DIR
 if command -v hcli &> /dev/null; then
     echo -e "${GREEN}Installation successful!${NC}"
     echo -e "${GREEN}hcli version:${NC}"
-    hcli --version
+    hcli version
 else
     echo -e "${YELLOW}Installation completed but hcli not found in PATH${NC}"
     echo -e "${YELLOW}Please ensure $INSTALL_DIR is in your PATH${NC}"
